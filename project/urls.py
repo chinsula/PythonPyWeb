@@ -33,4 +33,5 @@ if settings.DEBUG:
     # После urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += [
         path("__debug__/", include("debug_toolbar.urls")),
+        path('api_alter/', include('apps.db_train_alternative.urls')),
     ]
