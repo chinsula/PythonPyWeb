@@ -25,6 +25,10 @@ def update(self, instance, validated_data):
     return instance
 
 
+class AuthorModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Author
+        fields = ['id', 'name', 'email']  # или можно прописать '__all__' если нужны все поля
 
 
 

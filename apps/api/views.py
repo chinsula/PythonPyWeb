@@ -1,10 +1,9 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt  # Чтобы post, put, patch, delete не требовали csrf токена (небезопасно)
 from apps.db_train_alternative.models import Author
-from .serializers import AuthorSerializer
+from .serializers import AuthorSerializer, AuthorModelSerializer
 
 
 class AuthorAPIView(APIView):
@@ -26,7 +25,7 @@ class AuthorAPIView(APIView):
             return Response(serializer.data)
 
     def post(self, request):
-        serializer = AuthorSerializer(data=request.data)
+        serializer = AuthorModelSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -38,7 +37,7 @@ class AuthorAPIView(APIView):
         except Author.DoesNotExist:
             return Response({"message": "Автор не найден"}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = AuthorSerializer(author, data=request.data)
+        serializer = AuthorModelSerializer(author, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -50,11 +49,7 @@ class AuthorAPIView(APIView):
         except Author.DoesNotExist:
             return Response({"message": "Автор не найден"}, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = AuthorSerializer(author, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# Create your views here.
 
     def delete(self, request, pk):
         try:
