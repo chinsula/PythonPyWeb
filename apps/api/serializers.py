@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from apps.db_train_alternative.models import Author
+
+from apps.db_train_alternative.models import Author, Entry
 
 
 class AuthorSerializer(serializers.Serializer):
@@ -24,10 +25,14 @@ def update(self, instance, validated_data):
     instance.save()
     return instance
 
+
 class AuthorModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Author
         fields = ['id', 'name', 'email']  # или можно прописать '__all__' если нужны все поля
 
 
-
+class EntryModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Entry
+        fields = ['headline', 'body_text']  # или можно прописать '__all__' если нужны все поля

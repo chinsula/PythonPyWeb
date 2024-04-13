@@ -1,21 +1,19 @@
-from rest_framework.views import APIView
 from django.views.decorators.csrf import \
     csrf_exempt  # Чтобы post, put, patch, delete не требовали csrf токена (небезопасно)
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 from rest_framework import status
+from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import RetrieveModelMixin, ListModelMixin, CreateModelMixin, UpdateModelMixin, \
     DestroyModelMixin
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from apps.db_train_alternative.models import Author
-from .serializers import AuthorSerializer, AuthorModelSerializer
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.pagination import PageNumberPagination
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
 
+from apps.db_train_alternative.models import Author, Entry
+from .serializers import AuthorSerializer, AuthorModelSerializer, EntryModelSerializer
 
 
 class AuthorAPIView(APIView):
@@ -126,10 +124,32 @@ class AuthorViewSet(ModelViewSet):
     search_fields = ['email']  # Поля, по которым будет выполняться поиск
     ordering_fields = ['name', 'email']  # Поля, по которым можно сортировать
 
-
     def get_queryset(self):
         queryset = super().get_queryset()
         name = self.request.query_params.get('name')
+        if name:
+            queryset = queryset.filter(name__contains=name)
+        return queryset
+
+    @action(detail=True, methods=['post'])
+    def my_action(self, request, pk=None):
+        # Ваша пользовательская логика здесь
+        return Response({'message': f'Пользовательская функция для пользователя с pk={pk}'})
+
+
+class EntryViewSet(ModelViewSet):
+    queryset = Entry.objects.all()
+    serializer_class = EntryModelSerializer
+    http_method_names = ['get', 'post']
+    pagination_class = AuthorPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['headline', 'body_text']  # Указываем для каких полем можем проводить фильтрацию
+    search_fields = ['headline']  # Поля, по которым будет выполняться поиск
+    ordering_fields = ['headline']  # Поля, по которым можно сортировать
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        name = self.request.query_params.get('headline')
         if name:
             queryset = queryset.filter(name__contains=name)
         return queryset

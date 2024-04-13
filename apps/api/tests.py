@@ -1,3 +1,12 @@
+import os
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reminder.settings')
+# import django
+# from django.conf import settings
+#
+# if not settings.configured:
+#     django.setup()
+
 from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
@@ -8,6 +17,7 @@ from .serializers import AuthorModelSerializer
 
 class AuthorViewSetTestCase(APITestCase):
     fixtures = ['testdata.json']
+
     def setUp(self):
         print("Создаём данные в БД")
         self.author1 = Author.objects.create(name='John', email='john@example.com')
@@ -26,7 +36,6 @@ class AuthorViewSetTestCase(APITestCase):
         serializer = AuthorModelSerializer(authors, many=True)
         print(f"Сериализатор вернул из БД: {serializer.data}")
         self.assertEqual(response.data, serializer.data)
-
 
     def test_retrieve_author(self):
         print("Запуск теста test_retrieve_author")
@@ -91,4 +100,5 @@ class AuthorViewSetTestCase(APITestCase):
         response = self.client.delete(url)
         print(f"Ответ от сервера: {response.status_code}")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertFalse(Author.objects.filter(pk=self.author1.pk).exists())  # Проверка, что теперь этого автора не существует
+        self.assertFalse(
+            Author.objects.filter(pk=self.author1.pk).exists())  # Проверка, что теперь этого автора не существует

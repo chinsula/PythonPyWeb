@@ -98,8 +98,8 @@ class Entry(models.Model):
 
     """
     blog = models.ForeignKey(Blog, on_delete=models.CASCADE, related_name='entries')
-    headline = models.CharField(max_length=255)
-    body_text = models.TextField()
+    headline = models.CharField(max_length=255, verbose_name="Заголовок статьи")
+    body_text = models.TextField(verbose_name="Содержание")
     pub_date = models.DateTimeField(default=datetime.now)
     mod_date = models.DateField(auto_now=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE, related_name='entries')
