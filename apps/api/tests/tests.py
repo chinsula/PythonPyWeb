@@ -1,18 +1,21 @@
-import os
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reminder.settings')
+
+
+# import os
+#
+# os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'reminder.settings')
 # import django
 # from django.conf import settings
 #
 # if not settings.configured:
-#     django.setup()
+#     django.setupn
 
 from django.test import TestCase
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
-from apps.db_train_alternative.models import Author
-from .serializers import AuthorModelSerializer
+from apps.db_train_alternative.models import Author, Entry
+from apps.api.serializers import AuthorModelSerializer
 
 
 class AuthorViewSetTestCase(APITestCase):
@@ -102,3 +105,4 @@ class AuthorViewSetTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(
             Author.objects.filter(pk=self.author1.pk).exists())  # Проверка, что теперь этого автора не существует
+

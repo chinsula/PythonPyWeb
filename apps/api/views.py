@@ -2,6 +2,7 @@ from django.views.decorators.csrf import \
     csrf_exempt  # Чтобы post, put, patch, delete не требовали csrf токена (небезопасно)
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from rest_framework import permissions
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import GenericAPIView
@@ -14,9 +15,34 @@ from rest_framework.viewsets import ModelViewSet
 
 from apps.db_train_alternative.models import Author, Entry
 from .serializers import AuthorSerializer, AuthorModelSerializer, EntryModelSerializer
+from rest_framework import authentication
+
+
+class CustomPermission(permissions.BasePermission):
+    """
+    Пользователи могут выполнять различные действия в зависимости от их роли.
+    """
+
+    def has_permission(self, request, view):
+        # Разрешаем только GET запросы для неаутентифицированных пользователей
+        if request.method == 'GET' and not request.user.is_authenticated:
+            return True
+
+        # Разрешаем GET и POST запросы для аутентифицированных пользователей
+        if request.method in ['GET', 'POST'] and request.user.is_authenticated:
+            return True
+
+        # Разрешаем все действия для администраторов
+        if request.user.is_superuser:
+            return True
+
+        # Во всех остальных случаях возвращаем False
+        return False
 
 
 class AuthorAPIView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     @csrf_exempt
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
@@ -79,6 +105,10 @@ class AuthorGenericAPIView(GenericAPIView, RetrieveModelMixin, ListModelMixin, C
                            DestroyModelMixin):
     queryset = Author.objects.all()
     serializer_class = AuthorModelSerializer
+
+    # Переопределяем атрибут permission_classes для указания нашего собственного разрешения
+    permission_classes = [CustomPermission]
+    authentication_classes = [authentication.TokenAuthentication]
 
     def get(self, request, *args, **kwargs):
         if kwargs.get(self.lookup_field):
@@ -149,12 +179,13 @@ class EntryViewSet(ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        name = self.request.query_params.get('headline')
-        if name:
-            queryset = queryset.filter(name__contains=name)
+        headline = self.request.query_params.get('headline')
+        if headline:
+            queryset = queryset.filter(name__contains=headline)
         return queryset
 
     @action(detail=True, methods=['post'])
     def my_action(self, request, pk=None):
         # Ваша пользовательская логика здесь
         return Response({'message': f'Пользовательская функция для пользователя с pk={pk}'})
+

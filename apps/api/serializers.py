@@ -35,4 +35,4 @@ class AuthorModelSerializer(serializers.ModelSerializer):
 class EntryModelSerializer(serializers.ModelSerializer):
     class Meta:
         model = Entry
-        fields = ['headline', 'body_text']  # или можно прописать '__all__' если нужны все поля
+        fields = ['blog', 'author', 'headline', 'body_text']  # или можно прописать '__all__' если нужны все поля
